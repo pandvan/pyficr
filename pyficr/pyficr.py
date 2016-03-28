@@ -6,6 +6,7 @@
 import sys
 import re
 import requests
+import argparse
 from bs4 import BeautifulSoup
 
 
@@ -14,6 +15,7 @@ from bs4 import BeautifulSoup
 #        "p_Anno=2016&p_Codice=316&p_Manifestazione=2&p_Gara=1&p_Lingua=ITA&"
 #        "p_ProvaSpeciale=2&ps=false&n=2")
 
+DESCRIPTION = "Get a printable view of Rally FICR rankings"
 RALLY_FICR = ("http://rally.ficr.it")
 URL = (RALLY_FICR + "/" + "default.asp?p=Ym9keV9zY2hlZHVsZS5hc3A/"
        "cF9Bbm5vPTIwMTYmcF9Db2RpY2U9MTA3JnBfTWFuaWZlc3RhemlvbmU9MSZ"
@@ -166,7 +168,12 @@ def main():
     """ DOCS
     """
 
-    generate_text(URL)
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
+    parser.add_argument("-u", default=URL, help="Input URL",
+                        metavar="URL")
+    args = parser.parse_args()
+
+    print(generate_text(args.u))
 
 
 if __name__ == '__main__':
