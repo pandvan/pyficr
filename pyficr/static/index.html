@@ -61,19 +61,35 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        // my code
-        $(function() {
-            autosize($("#result"))
+    <script>
+        // my code (ref: http://gregfranko.com/jquery-best-practices/#/8)
+        // IIFE - Immediately Invoked Function Expression
+        (function(yourcode) {
+            // The global jQuery object is passed as a parameter
+          	yourcode(window.jQuery, window, document);
+        }(function($, window, document) {
+            // The $ is now locally scoped
+            // Listen for the jQuery ready event on the document
+            $(function() {
+                // console.log('The DOM is ready');
+                // The DOM is ready!
 
-            $("button#getrank").bind("click", function() {
-                //alert("I'm here, are you?");
-                $.get("/_get_rank",
-                      {url: $("input#url").val()},
-                      function(data) {$("#result").text(data); autosize.update($("#result"))}
-                ); // end JSON request
-            }); // end click function
-        }); // end script function
+                autosize($("#result"))
+
+                $("button#getrank").bind("click", function() {
+                    //alert("I'm here, are you?");
+                    var ajax = $.get("/_get_rank", {url: $("#url").val()});
+                    ajax.done(function(data) {
+                        var elem = $("#result");
+                        elem.text(data);
+                        autosize.update(elem);
+                    });
+                }); // end click function
+            });
+
+            // console.log('The DOM may not be ready');
+            // The rest of code goes here!
+        }));
     </script>
 </body>
 </html>
