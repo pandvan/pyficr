@@ -21,4 +21,4 @@ def get_rank():
     # return pyficr.get_ss_links
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0")
