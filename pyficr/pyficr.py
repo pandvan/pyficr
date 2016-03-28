@@ -123,24 +123,6 @@ def create_crew_string(result_list):
     return res
 
 
-def main2():
-    """ DOCS
-    """
-
-    results = get_contents(URL)
-    # print(results[0:10])
-    for i in range(0, len(results)//10):
-        str_ = create_crew_string(results[i*10:i*10+10])
-        print(str_)
-
-    # string =
-    # print(string)
-    # string = create_crew_string(results[10:20])
-    # print(string)
-    # string = create_crew_string(results[20:30])
-    # print(string)
-
-
 def generate_text(url):
     """ DOCS
     """
@@ -164,16 +146,52 @@ def generate_text(url):
     return "\n".join(result)
 
 
+def has_parent_tdContenuti_class(tag):
+    """ Return true if tag is:
+        - a link (<a> tag)
+        - its first class is linkContenuti
+        - its parent's first class is tdContenuti
+    """
+    return tag.name == "a" and \
+        tag.has_attr("class") and tag["class"][0] == "linkContenuti" and \
+        tag.parent.has_attr("class") and \
+        tag.parent["class"][0] == "tdContenuti"
+
+
+def get_events(url=RALLY_FICR, limit=5):
+    """ Return a list of all meaningful contents found in the URL """
+
+    response = requests.get(url)
+
+    # print("{response}".format(response=response.text))
+    # diagnose(response.text)
+    soup = BeautifulSoup(response.text, "lxml")
+    result = []
+    for evnt_anchor in soup.find_all(has_parent_tdContenuti_class,
+                                     limit=limit):
+        el1 = evnt_anchor.text
+        el2 = RALLY_FICR + "/" + evnt_anchor.get("href")
+        el = dict([("event", el1), ("link", el2)])
+        result.append(el)
+
+    return result
+
+
 def main():
     """ DOCS
     """
 
     parser = argparse.ArgumentParser(description=DESCRIPTION)
-    parser.add_argument("-u", default=URL, help="Input URL",
+    parser.add_argument("--url", "-u", default=URL, help="Input URL",
                         metavar="URL")
+    parser.add_argument("--list", "-l", help="List events",
+                        action="store_true")
     args = parser.parse_args()
 
-    print(generate_text(args.u))
+    if (args.list):
+        print(get_events())
+    else:
+        print(generate_text(args.u))
 
 
 if __name__ == '__main__':

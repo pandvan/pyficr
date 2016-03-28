@@ -4,7 +4,7 @@
 """
 
 import pyficr
-from flask import Flask, send_from_directory, request
+from flask import Flask, send_from_directory, request, jsonify
 app = Flask(__name__)
 
 
@@ -18,7 +18,13 @@ def index():
 def get_rank():
     url = request.args.get("url", "")
     return pyficr.generate_text(url)
-    # return pyficr.get_ss_links
+
+
+@app.route("/_get_event_list")
+def get_event_list():
+    evnt_list = pyficr.get_events()
+    return jsonify(list=evnt_list)
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=False)
