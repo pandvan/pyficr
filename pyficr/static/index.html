@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Rally FICR text rankings</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
@@ -11,18 +11,34 @@
         .hresize {
             resize: horizontal;
         }
+
+        #result {
+            border-left-width: 10px
+        }
     </style>
 </head>
 <body>
-    <div class="input-group">
-        <input id="url" type="text" class="form-control" placeholder="FICR event link">
-        <span class="input-group-btn">
-            <button id="getrank" class="btn btn-default" type="button">Get Rank</button>
-        </span>
+    <div class="jumbotron">
+        <div class="container">
+            <h1>Rally FICR Textual Rankings</h1>
+            <p>A simple way to copy-paste them everywhere you need</p>
+        </div>
     </div>
-    <div id="result-div" class="container">
-        <label for="result">Classifiche:</label>
-        <textarea id="result" class="form-control hresize" rows="1"></textarea>
+    <div class="container">
+        <div class="row">
+            <div class="input-group">
+                <input id="url" type="text" class="form-control" placeholder="FICR event link">
+                <span class="input-group-btn">
+                    <button id="getrank" class="btn btn-default" type="button">
+                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Get Rank
+                    </button>
+                </span>
+            </div>
+        </div>
+        <div id="result-div" class="row">
+            <label for="result">Rankings:</label>
+            <textarea id="result" class="form-control hresize" rows="1"></textarea>
+        </div>
     </div>
 
     <script type="text/javascript">
@@ -32,8 +48,9 @@
 
             $("button#getrank").bind("click", function() {
                 //alert("I'm here, are you?");
-                $.get("/_get_rank", {url: $("input#url").val()},
-                    function(data) {$("#result").text(data); autosize.update($("#result"))}
+                $.get("/_get_rank",
+                      {url: $("input#url").val()},
+                      function(data) {$("#result").text(data); autosize.update($("#result"))}
                 ); // end JSON request
             }); // end click function
         }); // end script function
