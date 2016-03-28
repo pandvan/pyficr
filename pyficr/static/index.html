@@ -6,6 +6,12 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="static/autosize.min.js"></script>
+    <style type="text/css">
+        .hresize {
+            resize: horizontal;
+        }
+    </style>
 </head>
 <body>
     <div class="input-group">
@@ -14,16 +20,20 @@
             <button id="getrank" class="btn btn-default" type="button">Get Rank</button>
         </span>
     </div>
-    <div id="result" class="container">
+    <div id="result-div" class="container">
+        <label for="result">Classifiche:</label>
+        <textarea id="result" class="form-control hresize" rows="1"></textarea>
     </div>
 
     <script type="text/javascript">
         // my code
         $(function() {
+            autosize($("#result"))
+
             $("button#getrank").bind("click", function() {
                 //alert("I'm here, are you?");
-                $.getJSON("/_get_rank", {url: $("input#url").val()},
-                    function(data) {$("result").text(data.result)}
+                $.get("/_get_rank", {url: $("input#url").val()},
+                    function(data) {$("#result").text(data); autosize.update($("#result"))}
                 ); // end JSON request
             }); // end click function
         }); // end script function

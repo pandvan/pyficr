@@ -139,24 +139,34 @@ def main2():
     # print(string)
 
 
-def main():
+def generate_text(url):
     """ DOCS
     """
 
-    links = get_ss_links(URL)
+    links = get_ss_links(url)
     ss = 0
+    result = []
     for link in links:
         ss += 1
-        print("PS: {0}".format(ss))
-        print("=====")
+        result.append("PS: {0}".format(ss))
+        result.append("=====")
 
         rank_link = get_afterssrank_link(link)
         results = get_contents(rank_link)
         for i in range(0, len(results)//10):
             str_ = create_crew_string(results[i*10:i*10+10])
-            print(str_)
+            result.append(str_)
 
-        print()
+        result.append("\n")
+
+    return "\n".join(result)
+
+
+def main():
+    """ DOCS
+    """
+
+    generate_text(URL)
 
 
 if __name__ == '__main__':
