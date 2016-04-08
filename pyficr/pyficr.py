@@ -39,8 +39,10 @@ def get_ss_links(url):
         # Find links that matchs the RegEx
         # They are the stage numbers (1, 2, 3, ...)
         if two_digit.match(link_contents.text):
-            link = RALLY_FICR + "/" + link_contents.get("href")
-            ps_links.append(link)
+            link_href = link_contents.get("href")
+            if(link_href):
+                link = RALLY_FICR + "/" + link_href
+                ps_links.append(link)
 
     return ps_links
 
@@ -191,7 +193,7 @@ def main():
     if (args.list):
         print(get_events())
     else:
-        print(generate_text(args.u))
+        print(generate_text(args.url))
 
 
 if __name__ == '__main__':
