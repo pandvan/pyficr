@@ -7,6 +7,7 @@
     <script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="static/autosize.min.js"></script>
+    <script src="static/ficr.js"></script>
     <style type="text/css">
         .hresize {
             resize: horizontal;
@@ -47,11 +48,8 @@
                 Latest available events:
             </div>
             <div class="panel-body">
-                <ul>
-                    <li class="col-sm-6">A</li>
-                    <li class="col-sm-6">B</li>
-                    <li class="col-sm-6">C</li>
-                    <li class="col-sm-6">D</li>
+                <ul id="event-list">
+                    <li class="col-sm-6">Loading list...</li>
                 </ul>
             </div>
         </div>
@@ -76,7 +74,7 @@
 
                 autosize($("#result"))
 
-                $("button#getrank").bind("click", function() {
+                $("#getrank").bind("click", function() {
                     //alert("I'm here, are you?");
                     var ajax = $.get("/_get_rank", {url: $("#url").val()});
                     ajax.done(function(data) {
@@ -85,6 +83,9 @@
                         autosize.update(elem);
                     });
                 }); // end click function
+
+                fill_event_list()
+
             });
 
             // console.log('The DOM may not be ready');
