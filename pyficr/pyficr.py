@@ -113,15 +113,15 @@ def create_crew_string(result_list):
 
     # print(result_list)
     gap = result_list[5] if result_list[5] else "0.0"
-    res = ("{pos} {num} {driver} - {co_driver} [{car} ({category})]"
-           " {time} (+{gap})").format(pos=result_list[0],
-                                      num=result_list[1],
-                                      driver=result_list[2],
-                                      co_driver=result_list[7],
-                                      car=result_list[9],
-                                      category=result_list[8],
-                                      time=result_list[4],
-                                      gap=gap)
+    res = ("{pos} {driver} - {co_driver} [{car} ({category})]"
+           " (+{gap})").format(pos=result_list[0],
+                               # num=result_list[1],
+                               driver=result_list[2],
+                               co_driver=result_list[7],
+                               car=result_list[9],
+                               category=result_list[8],
+                               # time=result_list[4],
+                               gap=gap)
     return res
 
 
@@ -190,7 +190,7 @@ def main():
                         action="store_true")
     args = parser.parse_args()
 
-    if (args.list):
+    if (len(sys.argv) == 1 or args.list):
         print(get_events())
     else:
         print(generate_text(args.url))
