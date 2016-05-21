@@ -31,14 +31,16 @@ def get_ss_links(url):
     ps_links = []
 
     for link_contents in soup.find_all("a", class_="linkContenuti"):
-        # print(link_contents.text)
+        print(link_contents.text)
 
-        # RegEx that matchs a number composed of only 1 or 2 digits
-        two_digit = re.compile("^[0-9]{1,2}$")
+        # RegEx that matchs a clock time
+        # two numbers, a colon and another 2 numbers
+        # e.g. 10:25
+        re_time = re.compile("^[0-9]{2}:[0-9]{2}$")
 
         # Find links that matchs the RegEx
-        # They are the stage numbers (1, 2, 3, ...)
-        if two_digit.match(link_contents.text):
+        # They are the stage start times
+        if re_time.match(link_contents.text):
             link_href = link_contents.get("href")
             if(link_href):
                 link = RALLY_FICR + "/" + link_href
