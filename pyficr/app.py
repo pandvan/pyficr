@@ -17,7 +17,7 @@ def index():
 @app.route("/_get_rank")
 def get_rank():
     url = request.args.get("url", "")
-    return pyficr.generate_text(url, " ")
+    return jsonify(pyficr.get_rally_data(url))
 
 
 @app.route("/_get_event_list")

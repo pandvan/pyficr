@@ -221,7 +221,7 @@ def has_parent_tdContenuti_class(tag):
         tag.parent["class"][0] == "tdContenuti"
 
 
-def get_events(url=RALLY_FICR, limit=5):
+def get_events(url=RALLY_FICR, limit=10):
     """ Return a list of all meaningful contents found in the URL """
 
     response = requests.get(url)

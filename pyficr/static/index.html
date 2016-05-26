@@ -73,17 +73,7 @@
                 // The DOM is ready!
 
                 autosize($("#result"))
-
-                $("#getrank").bind("click", function() {
-                    //alert("I'm here, are you?");
-                    var ajax = $.get("/_get_rank", {url: $("#url").val()});
-                    ajax.done(function(data) {
-                        var elem = $("#result");
-                        elem.text(data);
-                        autosize.update(elem);
-                    });
-                }); // end click function
-
+                bind_getrank_clicks()
                 fill_event_list()
 
             });
