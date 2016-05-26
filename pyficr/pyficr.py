@@ -31,7 +31,7 @@ def get_ss_links(rs, url):
     ps_links = []
 
     for link_contents in soup.find_all("a", class_="linkContenuti"):
-        print(link_contents.text)
+        # print(link_contents.text)
 
         # RegEx that matchs a clock time
         # two numbers, a colon and another 2 numbers
@@ -50,7 +50,7 @@ def get_ss_links(rs, url):
 
 
 def get_afterssrank_link(rs, url):
-    """ Return the link of raking after the SS
+    """ Return the link of ranking after the SS
         SS is defined as the URL with both rankings (of, after) """
 
     response = rs.get(url)
@@ -110,6 +110,22 @@ def get_contents(rs, url):
     return contents
 
 
+def get_ss_ranking(rs, url):
+    """ DOCS
+    """
+
+    # Example
+    # http://rally.ficr.it/default.asp?p=Ym9keV9zdGFnZXRpbWVzLmFzcD9wX0Fubm89Mj
+    # AxNiZwX0NvZGljZT01MCZwX01hbmlmZXN0YXppb25lPTMmcF9HYXJhPTEmcF9Qcm92YVNwZWN
+    # pYWxlPTEmcF9MaW5ndWE9SVRB
+
+    rank_link = get_afterssrank_link(rs, url)
+    results = get_contents(rs, rank_link)
+    print("\n\n" + "-".join(results) + "\n\n")
+
+    return results
+
+
 def create_crew_string(result_list):
     """ DOCS """
 
@@ -147,8 +163,7 @@ def generate_text(url):
         result.append("PS: {0}".format(ss))
         result.append("=====")
 
-        rank_link = get_afterssrank_link(rs, link)
-        results = get_contents(rs, rank_link)
+        results = get_ss_ranking(rs, link)
         for i in range(0, len(results)//10):
             str_ = create_crew_string(results[i*10:i*10+10])
             result.append(str_)
