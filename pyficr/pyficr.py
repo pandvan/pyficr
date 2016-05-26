@@ -22,10 +22,10 @@ URL = (RALLY_FICR + "/" + "default.asp?p=Ym9keV9zY2hlZHVsZS5hc3A/"
        "wX0xpbmd1YT1JVEE")
 
 
-def get_ss_links(url):
+def get_ss_links(rs, url):
     """ Return a list of all special stages links """
 
-    response = requests.get(url)
+    response = rs.get(url)
     soup = BeautifulSoup(response.text, "lxml")
 
     ps_links = []
@@ -49,11 +49,11 @@ def get_ss_links(url):
     return ps_links
 
 
-def get_afterssrank_link(url):
+def get_afterssrank_link(rs, url):
     """ Return the link of raking after the SS
         SS is defined as the URL with both rankings (of, after) """
 
-    response = requests.get(url)
+    response = rs.get(url)
 
     # The pattern matchs something like
     # $("#dopoProva").load("body_stagetimes_data.asp?p_Raggruppamento=ALL&
@@ -74,10 +74,10 @@ def get_afterssrank_link(url):
     return None
 
 
-def get_contents(url):
+def get_contents(rs, url):
     """ Return a list of all meaningful contents found in the URL """
 
-    response = requests.get(url)
+    response = rs.get(url)
 
     # print("{response}".format(response=response.text))
     # diagnose(response.text)
@@ -131,7 +131,15 @@ def generate_text(url):
     """ DOCS
     """
 
-    links = get_ss_links(url)
+    # Start a new requests session
+    rs = requests.Session()
+
+    links = get_ss_links(rs, url)
+
+    # responses = []
+    # for link in links:
+    #     responses.append(rs.get(link))
+
     ss = 0
     result = []
     for link in links:
@@ -139,8 +147,8 @@ def generate_text(url):
         result.append("PS: {0}".format(ss))
         result.append("=====")
 
-        rank_link = get_afterssrank_link(link)
-        results = get_contents(rank_link)
+        rank_link = get_afterssrank_link(rs, link)
+        results = get_contents(rs, rank_link)
         for i in range(0, len(results)//10):
             str_ = create_crew_string(results[i*10:i*10+10])
             result.append(str_)
