@@ -30,7 +30,7 @@ def get_ss_links(rs, url):
     soup = BeautifulSoup(response.text, "lxml")
 
     ss_links = []
-    idx = 1
+    idx = -1
 
     for link_contents in soup.find_all("a", class_="linkContenuti"):
         # print(link_contents.text)
@@ -46,8 +46,8 @@ def get_ss_links(rs, url):
             link_href = link_contents.get("href")
             if(link_href):
                 link = RALLY_FICR + "/" + link_href
-                ss_links.append(dict([("SS", idx), ("link", link)]))
-                idx += 1
+                ss_links.append(dict([("number", idx), ("url", link)]))
+                idx -= 1
 
     # print(ss_links)
     # print("\n\n")
@@ -69,13 +69,13 @@ def get_afterssrank_link(rs, url):
     #    function() { checkPanel(); });
     # and extracts the relative url path inside it
     # ^\s+ is needed because of HTML identation
-    pattern = re.compile("^\s+\$\(\"\#dopoProva\"\)\.load\(\"(.+)\".*\);",
-                         re.MULTILINE)
+    pattern = re.compile("^\s+\$\(\"\#dopoProva\"\)\.load\(\"(.+_ProvaSpeciale"
+                         "=(\d+).+)\".*\);", re.MULTILINE)
     # print(response.text)
     match = pattern.search(response.text)
     if match:
         # print(match.group(1))
-        return RALLY_FICR + "/" + match.group(1)
+        return (match.group(2), RALLY_FICR + "/" + match.group(1))
 
     return None
 
@@ -139,13 +139,13 @@ def get_ss_ranking(rs, url):
     # AxNiZwX0NvZGljZT01MCZwX01hbmlmZXN0YXppb25lPTMmcF9HYXJhPTEmcF9Qcm92YVNwZWN
     # pYWxlPTEmcF9MaW5ndWE9SVRB
 
-    rank_link = get_afterssrank_link(rs, url)
+    (ss_num, rank_link) = get_afterssrank_link(rs, url)
     result = get_contents(rs, rank_link)
 
     # print(result)
     # print("\n\n")
 
-    return result
+    return (ss_num, result)
 
 
 def create_crew_string(crew_result):
@@ -166,34 +166,47 @@ def create_crew_string(crew_result):
     return res
 
 
-def generate_text(url, separator="\n"):
+def generate_text(data, separator="\n"):
     """ DOCS
     """
 
-    # Start a new requests session
-    rs = requests.Session()
-
-    links = get_ss_links(rs, url)
-
-    # responses = []
-    # for link in links:
-    #     responses.append(rs.get(link))
-
-    ss = 0
     result = []
-    for link in links:
-        ss += 1
-        result.append("PS: {0}".format(link["SS"]))
+
+    for ss in data["ss"]:
+        result.append("PS: {0}".format(ss["number"]))
         result.append("=====")
 
-        results = get_ss_ranking(rs, link["link"])
-        for crew in results:
+        for crew in ss["overall_rank"]:
             str_ = create_crew_string(crew)
             result.append(str_)
 
         result.append("\n\n")
 
     return separator.join(result)
+
+
+def get_rally_data(url):
+    """ DOCS """
+
+    # Stores all rally data
+    data = {"url": url}
+
+    # Start a new requests session
+    rs = requests.Session()
+
+    # Get SS links
+    links = get_ss_links(rs, data["url"])
+    data["ss"] = links
+
+    for ss in data["ss"]:
+        (ss_num, ss_rank) = get_ss_ranking(rs, ss["url"])
+        ss["number"] = ss_num
+        ss["overall_rank"] = ss_rank
+
+    # print(json.dumps(data, sort_keys=True))
+    # print("\n\n")
+
+    return data
 
 
 def has_parent_tdContenuti_class(tag):
@@ -241,8 +254,12 @@ def main():
     if (len(sys.argv) == 1 or args.list):
         print(get_events())
     else:
-        print(generate_text(args.url, " "))
+        data = get_rally_data(args.url)
+        print(generate_text(data))
 
 
 if __name__ == '__main__':
     sys.exit(main())
+
+    # test_url = "http://rally.ficr.it/default.asp?p=Ym9keV9zY2hlZHVsZS5hc3A/cF9Bbm5vPTIwMTYmcF9Db2RpY2U9MjkmcF9NYW5pZmVzdGF6aW9uZT0xJnBfTGluZ3VhPUVORw"
+    # sys.exit(get_rally_data(test_url))
