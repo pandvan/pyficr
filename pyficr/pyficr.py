@@ -29,7 +29,8 @@ def get_ss_links(rs, url):
     response = rs.get(url)
     soup = BeautifulSoup(response.text, "lxml")
 
-    ps_links = []
+    ss_links = []
+    idx = 1
 
     for link_contents in soup.find_all("a", class_="linkContenuti"):
         # print(link_contents.text)
@@ -45,9 +46,13 @@ def get_ss_links(rs, url):
             link_href = link_contents.get("href")
             if(link_href):
                 link = RALLY_FICR + "/" + link_href
-                ps_links.append(link)
+                ss_links.append(dict([("SS", idx), ("link", link)]))
+                idx += 1
 
-    return ps_links
+    # print(ss_links)
+    # print("\n\n")
+
+    return ss_links
 
 
 def get_afterssrank_link(rs, url):
@@ -137,30 +142,31 @@ def get_ss_ranking(rs, url):
     rank_link = get_afterssrank_link(rs, url)
     result = get_contents(rs, rank_link)
 
-    print(result)
-    print("\n\n")
+    # print(result)
+    # print("\n\n")
 
     return result
 
 
-def create_crew_string(result_list):
+def create_crew_string(crew_result):
     """ DOCS """
 
-    # print(result_list)
-    gap = result_list[5] if result_list[5] else "0.0"
+    # print(crew_result)
+
+    gap = crew_result["gap"] if crew_result["gap"] else "0.0"
     res = ("{pos} {driver} - {co_driver} [{car} ({category})]"
-           " (+{gap})").format(pos=result_list[0],
-                               # num=result_list[1],
-                               driver=result_list[2],
-                               co_driver=result_list[7],
-                               car=result_list[9],
-                               category=result_list[8],
-                               # time=result_list[4],
+           " (+{gap})").format(pos=crew_result["position"],
+                               # num=result_list["number"],
+                               driver=crew_result["driver"],
+                               co_driver=crew_result["co_driver"],
+                               car=crew_result["car"],
+                               category=crew_result["class"],
+                               # time=result_list["time"],
                                gap=gap)
     return res
 
 
-def generate_text(url):
+def generate_text(url, separator="\n"):
     """ DOCS
     """
 
@@ -177,17 +183,17 @@ def generate_text(url):
     result = []
     for link in links:
         ss += 1
-        result.append("PS: {0}".format(ss))
+        result.append("PS: {0}".format(link["SS"]))
         result.append("=====")
 
-        results = get_ss_ranking(rs, link)
-        for i in range(0, len(results)//10):
-            str_ = create_crew_string(results[i*10:i*10+10])
+        results = get_ss_ranking(rs, link["link"])
+        for crew in results:
+            str_ = create_crew_string(crew)
             result.append(str_)
 
-        result.append("\n")
+        result.append("\n\n")
 
-    return "\n".join(result)
+    return separator.join(result)
 
 
 def has_parent_tdContenuti_class(tag):
@@ -235,7 +241,7 @@ def main():
     if (len(sys.argv) == 1 or args.list):
         print(get_events())
     else:
-        print(generate_text(args.url))
+        print(generate_text(args.url, " "))
 
 
 if __name__ == '__main__':
