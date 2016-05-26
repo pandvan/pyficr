@@ -7,6 +7,7 @@ import sys
 import re
 import requests
 import argparse
+import json
 from bs4 import BeautifulSoup
 
 
@@ -84,10 +85,26 @@ def get_contents(rs, url):
     soup = BeautifulSoup(response.text, "lxml")
     # soup.prettify()
     # print(soup.prettify())
+
+    keys = ["position", "number", "driver", "group", "time", "gap", "ND",
+            "co_driver", "class", "car"]
+
     contents = []
+    result = []
+
     pen = 0
+    idx = -1
     for table_colums in soup.find_all("td", class_=["tdContenuti",
                                                     "tdContenutiLittle"]):
+        if pen == 0:
+            idx = (idx + 1) % len(keys)
+        # if skipped, skip the next aswell
+        elif pen == 1:
+            pen = pen + 1
+        # if skipped last 2, stop skipping
+        elif pen == 2:
+            pen = 0
+
         # Clean up strings
         # Unicode \xa0 = nbsp (non-breaking space) and
         # heading traling whitespaces
@@ -98,16 +115,14 @@ def get_contents(rs, url):
             pen = 1
         # Replace multiple whitespaces with a sinlge one
         if pen == 0:
-            contents.append(' '.join(cleaned.split()))
+            contents.append((keys[idx], ' '.join(cleaned.split())))
 
-        # if skipped, skip the next aswell
-        if pen == 1:
-            pen = pen + 1
-        # if skipped last 2, stop skipping
-        elif pen == 2:
-            pen = 0
+            if (idx == len(keys)-1):
+                result.append(dict(contents))
+                contents = []
 
-    return contents
+    # return json.dumps(result, sort_keys=True, indent=4)
+    return result
 
 
 def get_ss_ranking(rs, url):
@@ -120,10 +135,12 @@ def get_ss_ranking(rs, url):
     # pYWxlPTEmcF9MaW5ndWE9SVRB
 
     rank_link = get_afterssrank_link(rs, url)
-    results = get_contents(rs, rank_link)
-    print("\n\n" + "-".join(results) + "\n\n")
+    result = get_contents(rs, rank_link)
 
-    return results
+    print(result)
+    print("\n\n")
+
+    return result
 
 
 def create_crew_string(result_list):
