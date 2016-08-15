@@ -1,11 +1,14 @@
 beautifulsoup4==4.4.1
+certifi==2016.8.8
 Flask==0.10.1
+future==0.15.2
 html5lib==0.9999999
 itsdangerous==0.24
 Jinja2==2.8
 lxml==3.5.0
 MarkupSafe==0.23
+python-telegram-bot==5.0.0
 requests==2.9.1
 six==1.10.0
+urllib3==1.16
 Werkzeug==0.11.5
-wheel==0.26.0

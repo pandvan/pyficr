@@ -3,59 +3,100 @@
 """ DOCS
 """
 
+# Import statements
 import sys
 import logging
 import pyficr
 from telegram.ext import Updater, CommandHandler
+from telegram import TelegramError
+
+# Global variables
+updater = None
+dispatcher = None
 
 
+# Functions
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id,
                      text="Hi! I'm the pyFicr Telegram Bot")
 
 
-def list_(bot, update):
+def get_rank(bot, update):
+    idx = int(update.message.text[1:])
+    idx = idx - 1
+
     evnt = pyficr.get_events(limit=5)
-    print("\n\n===\n\n")
+    url = evnt[idx]["link"]
 
-    result = ""
-    names = ["<a href='#xxx'>" + dict_['event'] + "</a>" for dict_ in evnt]
+    bot.send_message(chat_id=update.message.chat_id,
+                     text="Please wait a moment...")
+
+    data = pyficr.get_rally_data(url)
+    ln_str = pyficr.generate_text(data)
+
+    # split ln_str every 4000 chars
+    strs = [ln_str[i:i+4000] for i in range(0, len(ln_str), 4000)]
+
+    try:
+        for str_ in strs:
+            bot.send_message(chat_id=update.message.chat_id,
+                             text=str_)
+    except TelegramError as e:
+        print(str(e))
 
 
-        #print(dict_['event'])
-        #result = result + " " + dict_['event']
-        #dict_['link']
+def list_(bot, update):
+    print("inside list_ def")
+    print(type(dispatcher))
 
-        # for k, v in dict_.items():
-            # print("key: {}, value: {}".format(k, v))
-            # if(k=="event")
-            # result +
+    evnt = pyficr.get_events(limit=5)
 
-    #print(result)
+    # i = 0
+    # names = ["/" + enumerate(dict_['event']) for dict_ in evnt]
+    names = []
+    i = 0
+    for dict_ in evnt:
+        i = i + 1
+        names.append("/{} {}".format(i, dict_["event"]))
+        get_rank_handler = CommandHandler(str(i), get_rank)
+        dispatcher.add_handler(get_rank_handler)
+
+    # print("\n".join(names))
+
+    # print(type(bot))
+    # print(type(update))
+
     bot.send_message(chat_id=update.message.chat_id,
                      text="\n".join(names))
 
+    print("leaving list_ def")
 
+
+# Main Function
 def main():
     """ DOCS
     """
 
+    global updater
+    global dispatcher
+
     updater = Updater(token="256440402:AAFCJIa_E6vaW7cYsq_46ttOeNk9htAW4BU")
     dispatcher = updater.dispatcher
 
-    # logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - "
-    #                           "%(message)s", level=logging.DEBUG)
+    logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - "
+                               "%(message)s", level=logging.DEBUG)
 
-    start_handler = CommandHandler('start', start)
+    start_handler = CommandHandler("start", start)
     dispatcher.add_handler(start_handler)
 
-    list_handler = CommandHandler('list', list_)
+    list_handler = CommandHandler("list", list_)
     dispatcher.add_handler(list_handler)
 
     updater.start_polling()
 
-    #list_()
+    # list_(1, 2)
 
 
-if __name__ == '__main__':
+# If not call as a module, run main function
+if __name__ == "__main__":
     sys.exit(main())
