@@ -17,8 +17,20 @@ dispatcher = None
 
 # Functions
 def start(bot, update):
+    start_message = ["Hi! I'm the (Unofficial) Ficr Rally Bot.",
+                     "Please type /help to get the list of commands."]
+
     bot.send_message(chat_id=update.message.chat_id,
-                     text="Hi! I'm the pyFicr Telegram Bot")
+                     text="\n".join(start_message))
+
+
+def help_(bot, update):
+    help_message = ["Following are all available bot commands:",
+                    "/list - get the list of last 5 rallies",
+                    "/help - show this help message"]
+
+    bot.send_message(chat_id=update.message.chat_id,
+                     text="\n".join(help_message))
 
 
 def get_rank(bot, update):
@@ -80,7 +92,7 @@ def main():
     global updater
     global dispatcher
 
-    updater = Updater(token="256440402:AAFCJIa_E6vaW7cYsq_46ttOeNk9htAW4BU")
+    updater = Updater(token="267428343:AAGIu0K7pm92OTrfkeLhvQhUmy8kCmdXPvM")
     dispatcher = updater.dispatcher
 
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - "
@@ -88,6 +100,9 @@ def main():
 
     start_handler = CommandHandler("start", start)
     dispatcher.add_handler(start_handler)
+
+    help_handler = CommandHandler("help", help_)
+    dispatcher.add_handler(help_handler)
 
     list_handler = CommandHandler("list", list_)
     dispatcher.add_handler(list_handler)
