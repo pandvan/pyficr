@@ -185,8 +185,43 @@ def generate_text(data, separator="\n"):
     return separator.join(result)
 
 
+# def get_single_ss_ranking(rs, url):
+#     """ DOCS """
+#
+#     (ss_num, ss_rank) = get_ss_ranking(rs, url)
+#     return (ss_num, ss_rank)
+
+
 def get_rally_data(url):
-    """ DOCS """
+    """
+    Return Rally data in a dict that can be treated like a json with
+    the following structure:
+
+    {
+       ss [
+          {
+            number: int,
+            overall_rank: [
+               {
+                 ND: none,
+                 card: string,
+                 class: string,
+                 co_driver: string,
+                 driver: string,
+                 gap: float,
+                 group: string,
+                 number: int,
+                 position: string,
+                 time: string
+               }
+            ],
+            url: string
+          }
+       ],
+       url: string
+    }
+
+    """
 
     # Stores all rally data
     data = {"url": url}
