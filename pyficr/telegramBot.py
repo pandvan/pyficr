@@ -43,20 +43,22 @@ def get_rank(bot, update):
     url = evnt[idx]["link"]
 
     bot.send_message(chat_id=update.message.chat_id,
-                     text="Please wait a moment..., reading from %s" % url)
+                     text="Please wait a moment..., reading from {}".format(url))
 
     data = pyficr.get_rally_data(url)
-    ln_str = pyficr.generate_text(data)
 
-    # split ln_str every 4000 chars
-    strs = [ln_str[i:i+4000] for i in range(0, len(ln_str), 4000)]
+    # Loop for each special stage
+    for ss in data["ss"]:
+        ln_str = pyficr.generate_text({"ss": [ss], "url": None})
+        # split ln_str every 4000 chars
+        strs = [ln_str[i:i+4000] for i in range(0, len(ln_str), 4000)]
 
-    try:
-        for str_ in strs:
-            bot.send_message(chat_id=update.message.chat_id,
-                             text=str_)
-    except TelegramError as e:
-        print(str(e))
+        try:
+            for str_ in strs:
+                bot.send_message(chat_id=update.message.chat_id,
+                                 text=str_)
+        except TelegramError as e:
+            print(str(e))
 
 
 def list_(bot, update):
