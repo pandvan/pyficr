@@ -8,11 +8,12 @@ import sys
 import logging
 import pyficr
 from telegram.ext import Updater, CommandHandler
-from telegram import TelegramError
+from telegram import TelegramError, ReplyKeyboardMarkup
 
 # Global variables
 updater = None
 dispatcher = None
+logger = None
 
 
 # Functions
@@ -34,6 +35,7 @@ def help_(bot, update):
 
 
 def get_rank(bot, update):
+    # remove leading slash (/)
     idx = int(update.message.text[1:])
     idx = idx - 1
 
@@ -41,7 +43,7 @@ def get_rank(bot, update):
     url = evnt[idx]["link"]
 
     bot.send_message(chat_id=update.message.chat_id,
-                     text="Please wait a moment...")
+                     text="Please wait a moment..., reading from %s" % url)
 
     data = pyficr.get_rally_data(url)
     ln_str = pyficr.generate_text(data)
@@ -58,8 +60,8 @@ def get_rank(bot, update):
 
 
 def list_(bot, update):
-    print("inside list_ def")
-    print(type(dispatcher))
+    # print("inside list_ def")
+    # print(type(dispatcher))
 
     evnt = pyficr.get_events(limit=5)
 
@@ -78,10 +80,22 @@ def list_(bot, update):
     # print(type(bot))
     # print(type(update))
 
-    bot.send_message(chat_id=update.message.chat_id,
-                     text="\n".join(names))
+    try:
+        btn_str = [[str(i) for i in range(1, 6)]]
+        reply_markup = ReplyKeyboardMarkup(btn_str, resize_keyboard=True,
+                                           one_time_keyboard=True)
+
+        bot.send_message(chat_id=update.message.chat_id,
+                         text="\n".join(names),
+                         reply_markup=reply_markup)
+    except Exception as e:
+        print(e)
 
     print("leaving list_ def")
+
+
+def error_callback(bot, update, error):
+    logger.warn("Update {} caused error '{}'".format(update, error))
 
 
 # Main Function
@@ -91,13 +105,20 @@ def main():
 
     global updater
     global dispatcher
+    global logger
 
-    updater = Updater(token="267428343:AAGIu0K7pm92OTrfkeLhvQhUmy8kCmdXPvM")
-    dispatcher = updater.dispatcher
-
+    # Enable logging
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - "
                                "%(message)s", level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
 
+    # PRD Token
+    # updater = Updater(token="267428343:AAGIu0K7pm92OTrfkeLhvQhUmy8kCmdXPvM")
+    # DEV Token
+    updater = Updater(token="251682419:AAFN3qFERtA9sUkpNaeLWeTL1VkbPbd8zog")
+    dispatcher = updater.dispatcher
+
+    # Attach handlers to dispatcher
     start_handler = CommandHandler("start", start)
     dispatcher.add_handler(start_handler)
 
@@ -107,9 +128,16 @@ def main():
     list_handler = CommandHandler("list", list_)
     dispatcher.add_handler(list_handler)
 
+    # Log all errors
+    dispatcher.add_error_handler(error_callback)
+
+    # Start the Bot
     updater.start_polling()
 
-    # list_(1, 2)
+    # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 
 # If not call as a module, run main function
