@@ -1,6 +1,6 @@
 beautifulsoup4==4.4.1
 certifi==2016.8.8
-Flask==0.10.1
+Flask==1.0
 future==0.15.2
 html5lib==0.9999999
 itsdangerous==0.24
