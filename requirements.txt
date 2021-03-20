@@ -4,7 +4,7 @@ Flask==0.10.1
 future==0.15.2
 html5lib==0.9999999
 itsdangerous==0.24
-Jinja2==2.8
+Jinja2==2.11.3
 lxml==3.5.0
 MarkupSafe==0.23
 python-telegram-bot==5.0.0
